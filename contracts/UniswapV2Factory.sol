@@ -2,7 +2,7 @@ pragma solidity =0.5.16;
 
 import './interfaces/IUniswapV2Factory.sol';
 import './UniswapV2Pair.sol';
-
+//https://youtu.be/L_Xt5UzZ60c
 //uniswap工厂
 contract UniswapV2Factory is IUniswapV2Factory {
     address public feeTo; //收税地址
@@ -14,6 +14,8 @@ contract UniswapV2Factory is IUniswapV2Factory {
     //配对合约的Bytecode的hash
     bytes32 public constant INIT_CODE_PAIR_HASH = keccak256(abi.encodePacked(type(UniswapV2Pair).creationCode));
     //事件:配对被创建
+    // pair是配对出来的地址
+    // uint 所有配对地址的长度，得到配对创建序号是多少
     event PairCreated(address indexed token0, address indexed token1, address pair, uint);
 
     /**
@@ -48,6 +50,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
         //确认配对映射中不存在token0=>token1
         require(getPair[token0][token1] == address(0), 'UniswapV2: PAIR_EXISTS'); // single check is sufficient
         //给bytecode变量赋值"UniswapV2Pair"合约的创建字节码
+        // bytecode不定长
         bytes memory bytecode = type(UniswapV2Pair).creationCode;
         //将token0和token1打包后创建哈希
         bytes32 salt = keccak256(abi.encodePacked(token0, token1));
@@ -58,6 +61,7 @@ contract UniswapV2Factory is IUniswapV2Factory {
             pair := create2(0, add(bytecode, 32), mload(bytecode), salt)
         }
         //调用pair地址的合约中的"initialize"方法,传入变量token0,token1
+        // 对pair合约进行初始化
         IUniswapV2Pair(pair).initialize(token0, token1);
         //配对映射中设置token0=>token1=pair
         getPair[token0][token1] = pair;
