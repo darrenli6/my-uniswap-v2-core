@@ -7,14 +7,16 @@ import "./libraries/UQ112x112.sol";
 import "./interfaces/IERC20.sol";
 import "./interfaces/IUniswapV2Factory.sol";
 import "./interfaces/IUniswapV2Callee.sol";
-
+//https://youtu.be/l0zPhkuRQQg
 //Uniswap配对合约
 contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     using SafeMath for uint256;
+
     using UQ112x112 for uint224;
     //最小流动性 = 1000
     uint256 public constant MINIMUM_LIQUIDITY = 10**3;
     //SELECTOR常量值为'transfer(address,uint256)'字符串哈希值的前4位16进制数字
+    
     bytes4 private constant SELECTOR = bytes4(
         keccak256(bytes("transfer(address,uint256)"))
     );
@@ -67,12 +69,14 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
      * @dev 事件:同步
      * @param reserve0 储备量0
      * @param reserve1 储备量1
+
      */
     event Sync(uint112 reserve0, uint112 reserve1);
 
     /**
      * @dev 构造函数
      */
+     // 配对合约都是工厂合约调用的
     constructor() public {
         //factory地址为合约布署者
         factory = msg.sender;
@@ -93,6 +97,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
     /**
      * @dev 修饰符:锁定运行防止重入
      */
+     // 防止重入攻击
     modifier lock() {
         require(unlocked == 1, "UniswapV2: LOCKED");
         unlocked = 0;
@@ -132,6 +137,7 @@ contract UniswapV2Pair is IUniswapV2Pair, UniswapV2ERC20 {
         uint256 value
     ) private {
         //调用token合约地址的低级transfer方法
+        // 底层呼叫
         //solium-disable-next-line
         (bool success, bytes memory data) = token.call(
             abi.encodeWithSelector(SELECTOR, to, value)
